@@ -5,268 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>リアルタイム資産管理</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
   <meta name="theme-color" content="#1e293b">
+  <!-- 外部ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0f172a; color: #f8fafc; margin: 0; padding: 16px; padding-bottom: 32px; }
-    .container { max-width: 480px; margin: 0 auto; }
-    
-    /* 総資産カード */
-    .total-card { 
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
-      border-radius: 20px; padding: 24px; margin-bottom: 20px; 
-      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4); 
-    }
-    .total-label { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; }
-    .total-amount { font-size: 36px; font-weight: 800; margin-top: 6px; }
-    .last-update { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 12px; display: flex; justify-content: space-between; }
-    
-    .card { background: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
-    .section-title { font-size: 16px; font-weight: 700; color: #94a3b8; margin-bottom: 12px; }
-    
-    /* 入力タブ */
-    .tab-group { display: flex; background: #0f172a; padding: 4px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #334155; }
-    .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; color: #94a3b8; font-weight: 700; font-size: 14px; border-radius: 8px; cursor: pointer; }
-    .tab-btn.active[data-type="expense"] { background: #ef4444; color: white; }
-    .tab-btn.active[data-type="income"] { background: #10b981; color: white; }
-    .tab-btn.active[data-type="transfer"] { background: #8b5cf6; color: white; }
-    
-    /* フォーム */
-    .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px; }
-    .form-control { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px 14px; color: white; font-size: 15px; outline: none; }
-    .form-control:focus { border-color: #38bdf8; }
-    .form-row { display: flex; gap: 10px; }
-    .form-row .form-group { flex: 1; }
-    
-    .submit-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; background: #ef4444; margin-top: 10px; }
-    
-    /* 口座リスト */
-    .account-list { display: flex; flex-direction: column; gap: 10px; }
-    .account-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .account-name { font-weight: 700; font-size: 15px; color: #f1f5f9; }
-    .account-type { font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; }
-    .account-balance { font-weight: 700; font-size: 17px; color: #f8fafc; }
-
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; transition: transform 0.3s; z-index: 1000; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.error { background: #ef4444; }
-  </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- 総資産 -->
-    <div class="total-card">
+    <!-- 総資産カード -->
+    <section class="total-card">
       <div class="total-label">総資産額</div>
       <div class="total-amount" id="totalAsset">¥--,---,---</div>
       <div class="last-update">
         <span id="updateTime">同期中...</span>
         <span>リアルタイム連携済</span>
       </div>
-    </div>
+    </section>
 
-    <!-- フォーム -->
-    <div class="card">
-      <div class="tab-group">
-        <button class="tab-btn active" data-type="expense" onclick="selectTab('expense')">支出</button>
-        <button class="tab-btn" data-type="income" onclick="selectTab('income')">収入</button>
-        <button class="tab-btn" data-type="transfer" onclick="selectTab('transfer')">振替</button>
+    <!-- 入力フォーム -->
+    <section class="card">
+      <div class="tab-group" id="tabGroup">
+        <button class="tab-btn active" data-type="expense">支出</button>
+        <button class="tab-btn" data-type="income">収入</button>
+        <button class="tab-btn" data-type="transfer">振替</button>
       </div>
 
-      <form id="txForm" onsubmit="handleFormSubmit(event)">
+      <form id="txForm">
         <input type="hidden" id="txType" value="expense">
 
         <div class="form-group">
-          <label class="form-label">日付</label>
+          <label class="form-label" for="txDate">日付</label>
           <input type="date" id="txDate" class="form-control" required>
         </div>
 
         <div id="singleAccountGroup" class="form-group">
-          <label class="form-label" id="accountLabel">利用口座</label>
+          <label class="form-label" id="accountLabel" for="txAccount">利用口座</label>
           <select id="txAccount" class="form-control" required></select>
         </div>
 
-        <div id="transferAccountGroup" class="form-row" style="display: none;">
+        <div id="transferAccountGroup" class="form-row hidden">
           <div class="form-group">
-            <label class="form-label">出金元</label>
+            <label class="form-label" for="txFromAccount">出金元</label>
             <select id="txFromAccount" class="form-control"></select>
           </div>
           <div class="form-group">
-            <label class="form-label">入金先</label>
+            <label class="form-label" for="txToAccount">入金先</label>
             <select id="txToAccount" class="form-control"></select>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">金額 (円)</label>
+            <label class="form-label" for="txAmount">金額 (円)</label>
             <input type="number" id="txAmount" class="form-control" placeholder="0" min="1" inputmode="numeric" required>
           </div>
           <div class="form-group" id="categoryGroup">
-            <label class="form-label">カテゴリ</label>
+            <label class="form-label" for="txCategory">カテゴリ</label>
             <select id="txCategory" class="form-control"></select>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">メモ (任意)</label>
-          <input type="text" id="txMemo" class="form-control" placeholder="例: ランチ、積立投資">
+          <label class="form-label" for="txMemo">メモ (任意)</label>
+          <input type="text" id="txMemo" class="form-control" placeholder="例: ランチ、カフェ代">
         </div>
 
         <button type="submit" id="submitBtn" class="submit-btn">支出を記録</button>
       </form>
-    </div>
+    </section>
 
-    <!-- 口座一覧 -->
-    <div class="section-title">口座別残高</div>
-    <div class="account-list" id="accountList"></div>
+     <!-- 口座別残高 -->
+    <section class="card">
+      <div class="section-header">
+        <div class="section-title">口座別残高</div>
+        <button id="refreshBtn" class="refresh-btn">最新データ更新 ↻</button>
+      </div>
+      <div class="account-list" id="accountList"></div>
+    </section>
+
+    <!-- 資産ポートフォリオ -->
+    <section class="card">
+      <div class="section-title">資産ポートフォリオ</div>
+      <div class="chart-container">
+        <canvas id="assetChart"></canvas>
+      </div>
+    </section>
+   
   </div>
 
   <div id="toast" class="toast">記録しました！</div>
 
-  <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmwsZ1-7u3Z8vDknC3i0arVjyBNw50JoGTBjQ7SzActHDaXciDHnuPOGwYezSYqWgXug/exec'; // ★自分のGASデプロイURLに置き換え
-
-    let currentAccounts = [];
-    const categories = {
-      expense: ['食費', '日用品', '交通費', '固定費', '交際費', 'その他'],
-      income: ['給与', '賞与', '副業', '臨時収入', 'その他']
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-      updateCategoryOptions('expense');
-      loadData();
-    });
-
-    function selectTab(type) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.tab-btn[data-type="${type}"]`).classList.add('active');
-      document.getElementById('txType').value = type;
-
-      const submitBtn = document.getElementById('submitBtn');
-      const singleAcc = document.getElementById('singleAccountGroup');
-      const transferAcc = document.getElementById('transferAccountGroup');
-      const catGroup = document.getElementById('categoryGroup');
-
-      if (type === 'expense') {
-        submitBtn.innerText = '支出を記録'; submitBtn.style.background = '#ef4444';
-        singleAcc.style.display = 'block'; transferAcc.style.display = 'none'; catGroup.style.display = 'block';
-        updateCategoryOptions('expense');
-      } else if (type === 'income') {
-        submitBtn.innerText = '収入を記録'; submitBtn.style.background = '#10b981';
-        singleAcc.style.display = 'block'; transferAcc.style.display = 'none'; catGroup.style.display = 'block';
-        updateCategoryOptions('income');
-      } else if (type === 'transfer') {
-        submitBtn.innerText = '振替を実行'; submitBtn.style.background = '#8b5cf6';
-        singleAcc.style.display = 'none'; transferAcc.style.display = 'flex'; catGroup.style.display = 'none';
-      }
-    }
-
-    function updateCategoryOptions(type) {
-      const select = document.getElementById('txCategory');
-      select.innerHTML = '';
-      categories[type].forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat; opt.innerText = cat;
-        select.appendChild(opt);
-      });
-    }
-
-    async function loadData() {
-      try {
-        const response = await fetch(GAS_URL);
-        const data = await response.json();
-        currentAccounts = data.accounts || [];
-
-        document.getElementById('totalAsset').innerText = '¥' + Number(data.totalAsset).toLocaleString();
-        document.getElementById('updateTime').innerText = '同期: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-        populateAccountSelects();
-        renderAccountList(data.accounts);
-      } catch (err) {
-        showToast('同期失敗', true);
-      }
-    }
-
-    function populateAccountSelects() {
-      const generateOpts = () => currentAccounts.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      document.getElementById('txAccount').innerHTML = generateOpts();
-      document.getElementById('txFromAccount').innerHTML = generateOpts();
-      document.getElementById('txToAccount').innerHTML = generateOpts();
-    }
-
-    function renderAccountList(accounts) {
-      const listContainer = document.getElementById('accountList');
-      listContainer.innerHTML = '';
-      accounts.forEach(acc => {
-        const card = document.createElement('div');
-        card.className = 'account-card';
-        card.innerHTML = `
-          <div><div class="account-name">${acc.name}</div><div class="account-type">${acc.type}</div></div>
-          <div class="account-balance">¥${Number(acc.balance).toLocaleString()}</div>
-        `;
-        listContainer.appendChild(card);
-      });
-    }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-
-      const type = document.getElementById('txType').value;
-      const payload = {
-        type: type,
-        date: document.getElementById('txDate').value,
-        amount: Number(document.getElementById('txAmount').value),
-        memo: document.getElementById('txMemo').value || ''
-      };
-
-      if (type === 'transfer') {
-        payload.fromAccount = document.getElementById('txFromAccount').value;
-        payload.toAccount = document.getElementById('txToAccount').value;
-        if (payload.fromAccount === payload.toAccount) {
-          showToast('出金元と入金先が同じです', true);
-          submitBtn.disabled = false;
-          return;
-        }
-      } else {
-        payload.account = document.getElementById('txAccount').value;
-        payload.category = document.getElementById('txCategory').value;
-      }
-
-      try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        if (result.status === 'success') {
-          showToast('反映しました！');
-          document.getElementById('txAmount').value = '';
-          document.getElementById('txMemo').value = '';
-          await loadData();
-        } else {
-          showToast('エラー発生', true);
-        }
-      } catch (err) {
-        showToast('送信失敗', true);
-      } finally {
-        submitBtn.disabled = false;
-      }
-    }
-
-    function showToast(msg, isError = false) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.className = 'toast show' + (isError ? ' error' : '');
-      setTimeout(() => { toast.className = 'toast'; }, 3000);
-    }
-  </script>
+  <!-- 分割したJSファイルの読み込み -->
+  <script src="api.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

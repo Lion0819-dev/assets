@@ -1,0 +1,218 @@
+* {
+  box-sizing: border-box;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body {
+  background: #0f172a;
+  color: #f8fafc;
+  margin: 0;
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.hidden {
+  display: none !important;
+}
+
+/* カードパーツ */
+.card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #334155;
+  margin-bottom: 20px;
+}
+.total-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+}
+.total-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+.total-amount {
+  font-size: 36px;
+  font-weight: 800;
+  margin-top: 6px;
+}
+.last-update {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* フォームパーツ */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.refresh-btn {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-group {
+  display: flex;
+  background: #0f172a;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #334155;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tab-btn.active[data-type="expense"] {
+  background: #ef4444;
+  color: white;
+}
+.tab-btn.active[data-type="income"] {
+  background: #10b981;
+  color: white;
+}
+.tab-btn.active[data-type="transfer"] {
+  background: #8b5cf6;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+.form-control {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+.form-control:focus {
+  border-color: #38bdf8;
+}
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+.form-row .form-group {
+  flex: 1;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  background: #ef4444;
+  margin-top: 10px;
+}
+.submit-btn:disabled {
+  background: #475569;
+  cursor: not-allowed;
+}
+
+/* 口座リストパーツ */
+.account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.account-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.account-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #f1f5f9;
+}
+.account-type {
+  font-size: 11px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  display: inline-block;
+}
+.account-balance {
+  font-weight: 700;
+  font-size: 17px;
+  color: #f8fafc;
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+/* 通知トースト */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #10b981;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+.toast.error {
+  background: #ef4444;
+}
