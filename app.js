@@ -7,7 +7,7 @@ const App = {
   chartInstance: null,
   categories: {
     expense: ['食費', '日用品', '交通費', '固定費', '交際費', 'その他'],
-    income: ['給与', '賞与', '副業', '臨時収入', 'その他']
+    income: ['給料', '賞与', '副業', '臨時収入', 'その他']
   },
 
   init() {
@@ -34,6 +34,15 @@ const App = {
 
     // 手動更新ボタン
     document.getElementById('refreshBtn').addEventListener('click', () => this.loadData());
+
+    // モーダル・口座追加イベント
+    document.getElementById('addAccountBtn').addEventListener('click', () => {
+      document.getElementById('accountModal').classList.remove('hidden');
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('accountModal').classList.add('hidden');
+    });
+    document.getElementById('addAccountForm').addEventListener('submit', (e) => this.handleAddAccount(e));
   },
 
   switchTab(type) {
@@ -114,10 +123,68 @@ const App = {
           <div class="account-name">${acc.name}</div>
           <div class="account-type">${acc.type}</div>
         </div>
-        <div class="account-balance">¥${Number(acc.balance).toLocaleString()}</div>
+        <div class="account-card-right">
+          <div class="account-balance">¥${Number(acc.balance).toLocaleString()}</div>
+          <button class="delete-btn" data-name="${acc.name}" title="削除">🗑</button>
+        </div>
       `;
+
+      // 削除ボタンのイベントリスナー（.delete-btn に修正し、this.handleDeleteAccount を参照）
+      card.querySelector('.delete-btn').addEventListener('click', (e) => {
+        const name = e.currentTarget.dataset.name;
+        this.handleDeleteAccount(name);
+      });
+
       container.appendChild(card);
     });
+  },
+
+  // 口座追加ハンドラ
+  async handleAddAccount(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveAccountBtn');
+    btn.disabled = true; // 修正: TextTrackCue -> true
+
+    const payload = {
+      name: document.getElementById('newAccountName').value.trim(),
+      type: document.getElementById('newAccountType').value,
+      balance: Number(document.getElementById('initialBalance').value)
+    };
+
+    try {
+      const res = await KakeiboAPI.addAccount(payload);
+      if (res.status === 'success') {
+        this.showToast('口座を追加しました!');
+        document.getElementById('accountModal').classList.add('hidden');
+        document.getElementById('addAccountForm').reset(); // 修正: getElementById
+        await this.loadData();
+      } else {
+        this.showToast(res.message || '追加に失敗しました', true);
+      }
+    } catch (err) {
+      this.showToast('送信エラーが発生しました', true);
+    } finally {
+      btn.disabled = false;
+    }
+  },
+
+  // 口座削除ハンドラ
+  async handleDeleteAccount(accountName) {
+    if (!confirm(`「${accountName}」を削除してもよろしいですか？\n※残高データが消去されます。`)) {
+      return;
+    }
+
+    try {
+      const res = await KakeiboAPI.deleteAccount(accountName);
+      if (res.status === 'success') {
+        this.showToast('口座を削除しました');
+        await this.loadData();
+      } else {
+        this.showToast(res.message || '削除に失敗しました', true);
+      }
+    } catch (err) {
+      this.showToast('送信エラーが発生しました', true);
+    }
   },
 
   renderChart(accounts) {

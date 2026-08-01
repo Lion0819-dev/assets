@@ -79,10 +79,44 @@
     <section class="card">
       <div class="section-header">
         <div class="section-title">口座別残高</div>
-        <button id="refreshBtn" class="refresh-btn">最新データ更新 ↻</button>
+        <div>
+          <button id="addAccountBtn" class="add-btn">+ 追加</button>
+          <button id="refreshBtn" class="refresh-btn">↻</button>
+        </div>
       </div>
       <div class="account-list" id="accountList"></div>
     </section>
+
+    <!-- 口座追加モーダル(ダイアログ) -->
+     <div id="accountModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">口座の追加</div>
+          <button id="closeModalBtn" class="close-btn">&times;</button>
+        </div>
+        <form id="addAccountForm">
+          <div class="form-group">
+            <label class="form-label" for="newAccountName">口座名</label>
+            <input type="text" id="newAccountName" class="form-control" placeholder="例：楽天銀行、現金" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newAccountType">種別</label>
+            <select id="newAccountType" class="form-control" required>
+              <option value="銀行口座">銀行口座</option>
+              <option value="現金">現金</option>
+              <option value="クレジットカード">クレジットカード</option>
+              <option value="電子マネー">電子マネー</option>
+              <option value="証券・投資">証券・投資</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="initialBalance">初期残高（円）</label>
+            <input type="number" id="initialBalance" class="form-control" placeholder="0" value="0" required>
+          </div>
+          <button type="submit" id="saveAccountBtn" class="submit-btn" style="background: #3b82f6;">追加する</button>
+        </form>
+      </div>
+     </div>
 
     <!-- 資産ポートフォリオ -->
     <section class="card">
