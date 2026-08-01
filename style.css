@@ -117,9 +117,10 @@ body {
   margin-bottom: 6px;
 }
 .form-control {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   background: #0f172a;
   border: 1px solid #334155;
   border-radius: 10px;
@@ -139,9 +140,17 @@ body {
   flex: 1;
 }
 
+/* iOS/Safariのdate要素特有の崩れを強力リセット */
 input[type="date"].form-control {
   min-height: 48px;
   display: block;
+}
+
+/* iOSの内部日付表示領域を親幅に収める */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+  width: 100%;
 }
 
 .submit-btn {
