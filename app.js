@@ -151,7 +151,6 @@ const App = {
         </div>
       `;
 
-      // 削除ボタンのイベントリスナー（.delete-btn に修正し、this.handleDeleteAccount を参照）
       card.querySelector(".delete-btn").addEventListener("click", (e) => {
         const name = e.currentTarget.dataset.name;
         this.handleDeleteAccount(name);
@@ -165,7 +164,7 @@ const App = {
   async handleAddAccount(e) {
     e.preventDefault();
     const btn = document.getElementById("saveAccountBtn");
-    btn.disabled = true; // 修正: TextTrackCue -> true
+    btn.disabled = true;
 
     const payload = {
       name: document.getElementById("newAccountName").value.trim(),
@@ -178,7 +177,7 @@ const App = {
       if (res.status === "success") {
         this.showToast("口座を追加しました!");
         document.getElementById("accountModal").classList.add("hidden");
-        document.getElementById("addAccountForm").reset(); // 修正: getElementById
+        document.getElementById("addAccountForm").reset();
         await this.loadData();
       } else {
         this.showToast(res.message || "追加に失敗しました", true);
@@ -194,7 +193,7 @@ const App = {
   async handleDeleteAccount(accountName) {
     if (
       !confirm(
-        `「${accountName}」を削除してもよろしいですか？\n※残高データが消去されます。`,
+        `「${accountName}」を削除してもよろしいですか？\n※残高データが消去されます。`
       )
     ) {
       return;
@@ -251,6 +250,7 @@ const App = {
     });
   },
 
+  // 支出カテゴリ別グラフ描画
   renderExpenseChart(expenses) {
     const canvas = document.getElementById("expenseChart");
     if (!canvas) return;
@@ -258,7 +258,7 @@ const App = {
 
     if (this.expenseChartInstance) this.expenseChartInstance.destroy();
 
-    // 当月の支出データがない場合の表示ハンドリング
+    // 当月の支出データがない場合
     if (expenses.length === 0) {
       this.expenseChartInstance = new Chart(ctx, {
         type: "doughnut",
@@ -280,7 +280,7 @@ const App = {
               position: "bottom",
               labels: { color: "#94a3b8", boxWidth: 12 },
             },
-            tooltip: { enableed: false },
+            tooltip: { enabled: false },
           },
           cutout: "70%",
         },
@@ -288,7 +288,6 @@ const App = {
       return;
     }
 
-    // 支出カテゴリ用カラーパレット
     const categoryColors = [
       "#ef4444",
       "#f97316",
@@ -303,31 +302,34 @@ const App = {
     this.expenseChartInstance = new Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: expenses.map((e) => e.amount),
-        datasets: [{
+        labels: expenses.map((e) => e.category),
+        datasets: [
+          {
+            data: expenses.map((e) => e.amount),
             backgroundColor: categoryColors.slice(0, expenses.length),
             borderWidth: 0,
-        }]
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: { color: '#94a3b8', boxWidth: 12 }
+            position: "bottom",
+            labels: { color: "#94a3b8", boxWidth: 12 },
           },
           tooltip: {
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const value = context.raw || 0;
-                return `${context.label}: \${value.toLocalString()};`
-              }
-            }
-          }
+                return ` ${context.label}: ¥${value.toLocaleString()}`;
+              },
+            },
+          },
         },
-        cutout: '70%'
-      }
+        cutout: "70%",
+      },
     });
   },
 
