@@ -3,51 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>リアルタイム資産管理</title>
+  <title>口座別リアルタイム資産</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4F46E5">
   <style>
-    body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; padding: 20px; text-align: center; }
-    .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-top: 20px; }
-    .label { color: #64748b; font-size: 14px; font-weight: bold; }
-    .amount { font-size: 32px; font-weight: bold; color: #0f172a; margin: 12px 0; }
-    button { background: #4f46e5; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    button:active { opacity: 0.8; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: #f8fafc; color: #0f172a; padding: 16px; margin: 0; }
+    
+    /* 総資産カード */
+    .total-card { background: #4f46e5; color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+    .total-label { font-size: 13px; opacity: 0.9; }
+    .total-amount { font-size: 32px; font-weight: bold; margin-top: 4px; }
+    
+    .section-title { font-size: 14px; font-weight: bold; color: #64748b; margin-bottom: 10px; }
+    
+    /* 口座ごとのリストカード */
+    .account-list { display: flex; flex-direction: column; gap: 10px; }
+    .account-card { background: white; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .account-name { font-weight: bold; font-size: 15px; }
+    .account-type { font-size: 11px; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-top: 2px; display: inline-block; }
+    .account-balance { font-weight: bold; font-size: 18px; color: #0f172a; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="label">現在の総資産</div>
-    <div class="amount" id="totalAsset">読み込み中...</div>
-    <button onclick="fetchAsset()">最新に更新</button>
+  <!-- 総資産表示 -->
+  <div class="total-card">
+    <div class="total-label">総資産額</div>
+    <div class="total-amount" id="totalAsset">¥--,---,---</div>
+  </div>
+
+  <!-- 口座別残高一覧 -->
+  <div class="section-title">口座別残高</div>
+  <div class="account-list" id="accountList">
+    <div style="text-align:center; color:#94a3b8; padding: 20px;">読み込み中...</div>
   </div>
 
   <script>
-    // GASで発行されたWebアプリURLをここに貼る
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmwsZ1-7u3Z8vDknC3i0arVjyBNw50JoGTBjQ7SzActHDaXciDHnuPOGwYezSYqWgXug/exec';
 
-    async function fetchAsset() {
-      const amountEl = document.getElementById('totalAsset');
-      amountEl.innerText = '更新中...';
+    async function loadData() {
       try {
         const response = await fetch(GAS_URL);
         const data = await response.json();
-        // 数字を「1,500,000円」形式に整形
-        amountEl.innerText = '¥' + Number(data.totalAsset).toLocaleString();
+
+        // 1. 総資産のセット
+        document.getElementById('totalAsset').innerText = '¥' + Number(data.totalAsset).toLocaleString();
+
+        // 2. 口座一覧のHTML組み立て
+        const listContainer = document.getElementById('accountList');
+        listContainer.innerHTML = ''; // クリア
+
+        data.accounts.forEach(acc => {
+          const card = document.createElement('div');
+          card.className = 'account-card';
+          card.innerHTML = `
+            <div>
+              <div class="account-name">${acc.name}</div>
+              <div class="account-type">${acc.type}</div>
+            </div>
+            <div class="account-balance">¥${Number(acc.balance).toLocaleString()}</div>
+          `;
+          listContainer.appendChild(card);
+        });
+
       } catch (err) {
-        amountEl.innerText = '取得失敗';
+        document.getElementById('accountList').innerHTML = '<div style="color:red; text-align:center;">データの取得に失敗しました</div>';
         console.error(err);
       }
     }
 
-    // 画面が開いたときに自動取得
-    fetchAsset();
-
-    // PWA用のService Worker登録
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js');
-    }
+    loadData();
   </script>
 </body>
 </html>
