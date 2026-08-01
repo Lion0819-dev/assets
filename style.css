@@ -108,6 +108,7 @@ body {
 
 .form-group {
   margin-bottom: 14px;
+  min-width: 0;
 }
 .form-label {
   display: block;
@@ -138,9 +139,11 @@ body {
 .form-row {
   display: flex;
   gap: 10px;
+  width: 100%;
 }
 .form-row .form-group {
   flex: 1;
+  min-width: 0;
 }
 
 /* iOS/Safariのdate要素特有の崩れを強力リセット */
@@ -149,6 +152,7 @@ input[type="date"].form-control {
   min-height: 48px;
   /* 文字列やカレンダーアイコンが枠外に飛び出すのを防ぐ */
   overflow: hidden;
+  inline-size: 100%;
 }
 
 /* iOSの内部日付表示領域を親幅に収める */
