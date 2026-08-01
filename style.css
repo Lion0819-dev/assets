@@ -118,6 +118,8 @@ body {
 }
 .form-control {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: #0f172a;
   border: 1px solid #334155;
   border-radius: 10px;
@@ -135,6 +137,11 @@ body {
 }
 .form-row .form-group {
   flex: 1;
+}
+
+input[type="date"].form-control {
+  min-height: 48px;
+  display: block;
 }
 
 .submit-btn {
