@@ -137,7 +137,7 @@ const App = {
   renderAccountList(accounts) {
     const container = document.getElementById("accountList");
     container.innerHTML = "";
-    accounts.forEach((acc) => {
+    accounts.sort((a, b) => b.balance - a.balance).forEach((acc) => {
       const card = document.createElement("div");
       card.className = "account-card";
       card.innerHTML = `
