@@ -7,7 +7,7 @@ const App = {
   chartInstance: null,
   expenseChartInstance: null,
   categories: {
-    expense: ["食費", "日用品", "交通費", "固定費", "交際費", "その他"],
+    expense: ["食費", "外食費", "スマホ", "奨学金", "日用品", "交通費", "固定費", "交際費", "趣味", "娯楽", "その他"],
     income: ["給料", "賞与", "副業", "臨時収入", "その他"],
   },
 
